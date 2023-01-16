@@ -1,12 +1,29 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+let inputBox, inputContent, page: Page
+
+test.describe.configure({ mode: "serial" })
+
+test.beforeAll(async ({ browser }) => {
+  page = await browser.newPage()
+  await page.goto('/');
+  await page.getByText("Search").click();
+  inputBox = page.locator("#docsearch-input")
+})
 
 test.beforeEach(async ({ page }) => {
+  inputContent = ""
+
   await page.goto('/');
   await page.getByText("Search").click();
 });
 
+test.afterAll(async () => {
+  await page.close()
+})
+
 test('Realizar una busqueda que no tenga resultados', async ({ page }) => {
-  const inputContent = "hasnocontent"
+  inputContent = "hasnocontent"
 
   await page.type("#docsearch-input", inputContent)
 
@@ -21,8 +38,8 @@ test('Realizar una busqueda que no tenga resultados', async ({ page }) => {
 })
 
 test('Limpiar el input de busqueda', async ({ page }) => {
-  const inputContent = "somerandomtext"
-  const inputBox = page.locator("#docsearch-input")
+  inputContent = "somerandomtext"
+  inputBox = page.locator("#docsearch-input")
 
   await inputBox.type(inputContent)
 
@@ -34,17 +51,15 @@ test('Limpiar el input de busqueda', async ({ page }) => {
 });
 
 test('Realizar una busqueda que genere al menos tenga un resultado', async ({ page }) => {
-  const searchBox = page.getByPlaceholder('Search docs');
+  inputContent = "havetext"
+  await inputBox.type(inputContent);
 
-  await searchBox.click();
-
-  await page.getByPlaceholder('Search docs').fill('havetext');
-
-  expect(searchBox).toHaveText('havetext');
+  await expect(inputBox).toHaveAttribute('value', inputContent);
 
   // Verity there are sections in the results
-  await page.locator('.DocSearch-Dropdown-Container section').nth(1).waitFor();
-  const numberOfResults = await page.locator('.DocSearch-Dropdown-Container section').count();
+  const containerSelector = ".DocSearch-Dropdown-Container section"
+  await page.locator(containerSelector).nth(1).waitFor();
+  const numberOfResults = await page.locator(containerSelector).count();
   await expect(numberOfResults).toBeGreaterThan(0);
 
 });
