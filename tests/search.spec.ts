@@ -6,9 +6,6 @@ test.describe.configure({ mode: "serial" })
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage()
-  await page.goto('/');
-  await page.getByText("Search").click();
-  inputBox = page.locator("#docsearch-input")
 })
 
 test.beforeEach(async ({ page }) => {
@@ -16,6 +13,8 @@ test.beforeEach(async ({ page }) => {
 
   await page.goto('/');
   await page.getByText("Search").click();
+  
+  inputBox = page.locator("#docsearch-input")
 });
 
 test.afterAll(async () => {
