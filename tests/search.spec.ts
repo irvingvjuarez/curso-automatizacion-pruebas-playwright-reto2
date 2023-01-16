@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
+  await page.getByText("Search").click();
 });
 
 test('Realizar una busqueda que no tenga resultados', async ({ page }) => {
   const inputContent = "hasnocontent"
 
-  await page.getByText("Search").click();
   await page.type("#docsearch-input", inputContent)
 
   // await page.getByPlaceholder('Search docs').click();
@@ -21,24 +21,19 @@ test('Realizar una busqueda que no tenga resultados', async ({ page }) => {
 })
 
 test('Limpiar el input de busqueda', async ({ page }) => {
-  await page.getByRole('button', { name: 'Search' }).click();
+  const inputContent = "somerandomtext"
+  const inputBox = page.locator("#docsearch-input")
 
-  const searchBox = page.getByPlaceholder('Search docs');
+  await inputBox.type(inputContent)
 
-  await searchBox.click();
+  await expect(inputBox).toHaveAttribute('value', inputContent);
 
-  await searchBox.fill('somerandomtext');
+  await page.click("button[title='Clear the query']");
 
-  await expect(searchBox).toHaveText('somerandomtext');
-
-  await page.getByRole('button', { name: 'Clear the query' }).click();
-
-  await expect(searchBox).toHaveAttribute('value', '');
+  await expect(inputBox).toHaveAttribute('value', '');
 });
 
 test('Realizar una busqueda que genere al menos tenga un resultado', async ({ page }) => {
-  await page.getByRole('button', { name: 'Search ' }).click();
-
   const searchBox = page.getByPlaceholder('Search docs');
 
   await searchBox.click();
