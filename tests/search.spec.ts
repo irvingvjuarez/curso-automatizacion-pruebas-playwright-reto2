@@ -5,15 +5,18 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Realizar una busqueda que no tenga resultados', async ({ page }) => {
-  await page.getByRole('button').click();
+  const inputContent = "hasnocontent"
 
-  await page.getByPlaceholder('Search docs').click();
+  await page.getByText("Search").click();
+  await page.type("#docsearch-input", inputContent)
 
-  await page.getByPlaceholder('Search docs').fill('hascontent');
+  // await page.getByPlaceholder('Search docs').click();
+  // await page.getByPlaceholder('Search docs').fill('hascontent');
 
-  expect(page.locator('.DocSearch-NoResults p')).toBeVisible();
+  const messageParagraph = page.locator('p.DocSearch-Title > strong')
 
-  expect(page.locator('.DocSearch-NoResults p')).toHaveText('No results for hascontent');
+  await expect(messageParagraph).toBeVisible();
+  await expect(messageParagraph).toHaveText(inputContent);
 
 })
 
